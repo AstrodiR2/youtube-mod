@@ -5,12 +5,15 @@ on:
     inputs:
       yt_version:
         description: 'Версия YouTube (например 21.20.404)'
-        required: true
-        default: '21.20.404'
+        required: false
+        default: 'latest'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_LOGIN: ${{ secrets.GOOGLE_LOGIN }}
+      GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
     steps:
       - name: Получение кода
         uses: actions/checkout@v4
