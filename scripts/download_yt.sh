@@ -8,15 +8,14 @@ chmod +x /usr/local/bin/apkeep
 echo "Скачиваем YouTube из Google Play..."
 apkeep -a com.google.android.youtube \
   -d google-play \
-  -u "$GOOGLE_LOGIN" \
-  -p "$GOOGLE_PASSWORD" \
-  .
+  --google-username "$GOOGLE_LOGIN" \
+  --google-password "$GOOGLE_PASSWORD" \
+  /tmp/apks/
 
-echo "Файлы в папке:"
-ls -lh .
+echo "Файлы в /tmp/apks/:"
+ls -lh /tmp/apks/ 2>/dev/null || echo "Папка пуста"
 
-# Находим скачанный apk и переименовываем
-APK=$(find . -name "*.apk" | head -1)
+APK=$(find /tmp/apks/ -name "*.apk" | head -1)
 if [ -z "$APK" ]; then
   echo "APK не найден!"
   exit 1
