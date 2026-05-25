@@ -12,5 +12,15 @@ apkeep -a com.google.android.youtube \
   -p "$GOOGLE_PASSWORD" \
   .
 
-mv com.google.android.youtube*.apk youtube.apk
+echo "Файлы в папке:"
+ls -lh .
+
+# Находим скачанный apk и переименовываем
+APK=$(find . -name "*.apk" | head -1)
+if [ -z "$APK" ]; then
+  echo "APK не найден!"
+  exit 1
+fi
+
+mv "$APK" youtube.apk
 echo "Успешно: $(du -h youtube.apk)"
