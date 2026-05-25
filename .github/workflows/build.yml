@@ -1,0 +1,49 @@
+name: Build YouTube Mod
+
+on:
+  workflow_dispatch:
+    inputs:
+      yt_version:
+        description: 'YouTube version (e.g. 19.47.53)'
+        required: true
+        default: '19.47.53'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install apktool
+        run: |
+          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O /usr/local/bin/apktool
+          wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O /usr/local/bin/apktool.jar
+          chmod +x /usr/local/bin/apktool
+
+      - name: Download YouTube APK
+        run: bash scripts/download_yt.sh ${{ github.event.inputs.yt_version }}
+
+      - name: Decompile
+        run: apktool d youtube.apk -o youtube_decompiled -f
+
+      - name: Apply patches
+        run: bash scripts/apply_patches.sh
+
+      - name: Recompile
+        run: apktool b youtube_decompiled -o youtube_modded_unsigned.apk
+
+      - name: Sign APK
+        run: bash scripts/sign.sh
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-modded
+          path: youtube_modded.apk
