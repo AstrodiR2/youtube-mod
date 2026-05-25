@@ -1,48 +1,49 @@
-name: Build YouTube Mod
+name: Сборка YouTube Мода
 
 on:
   workflow_dispatch:
     inputs:
       yt_version:
-        description: 'YouTube version (e.g. 19.47.53)'
+        description: 'Версия YouTube (например 21.20.404)'
         required: true
-        default: '19.47.53'
+        default: '21.20.404'
 
 jobs:
-  build:
+  сборка:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Получение кода
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Установка Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install apktool
+      - name: Установка apktool
         run: |
+          wget -q https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O /usr/local/bin/apktool.jar
           wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O /usr/local/bin/apktool
-          wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O /usr/local/bin/apktool.jar
           chmod +x /usr/local/bin/apktool
+          apktool --version
 
-      - name: Download YouTube APK
+      - name: Скачивание YouTube APK
         run: bash scripts/download_yt.sh ${{ github.event.inputs.yt_version }}
 
-      - name: Decompile
+      - name: Декомпиляция
         run: apktool d youtube.apk -o youtube_decompiled -f
 
-      - name: Apply patches
+      - name: Применение патчей
         run: bash scripts/apply_patches.sh
 
-      - name: Recompile
+      - name: Перекомпиляция
         run: apktool b youtube_decompiled -o youtube_modded_unsigned.apk
 
-      - name: Sign APK
+      - name: Подпись APK
         run: bash scripts/sign.sh
 
-      - name: Upload APK
+      - name: Загрузка APK
         uses: actions/upload-artifact@v4
         with:
           name: youtube-modded
